@@ -22,6 +22,8 @@ jobs:
         paths:
         - ~/.gradle
         key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
+    - run: yes | sdkmanager --licenses || exit 0
+    - run: yes | sdkmanager --update || exit 0
     - run:
         name: Setup Emulator
         command: sdkmanager "system-images;android-27;google_apis;x86" && echo "no" | avdmanager create avd -n androidTest -k "system-images;android-27;google_apis;x86"
