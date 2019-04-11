@@ -1,0 +1,45 @@
+version: 2
+jobs:
+  build:
+    docker:
+    - image: circleci/android:api-28-alpha
+    working_directory: ~/workspace
+    environment:
+      JVM_OPTS: -Xmx3200m
+      TERM: dumb
+
+    steps:
+    - checkout
+    - restore_cache:
+        key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
+    - run:
+        name: Chmod permissions
+        command: sudo chmod +x ./gradlew
+    - run:
+        name: Download Dependencies
+        command: ./gradlew androidDependencies
+    - save_cache:
+        paths:
+        - ~/.gradle
+        key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
+    - run:
+        name: Setup Emulator
+        command: sdkmanager "system-images;android-27;google_apis;x86" && echo "no" | avdmanager create avd -n androidTest -k "system-images;android-27;google_apis;x86"
+    - run:
+        name: Launch Emulator
+        command: |
+              cd ${ANDROID_HOME}/emulator;ls
+              export LD_LIBRARY_PATH=${ANDROID_HOME}/emulator/lib64:${ANDROID_HOME}/emulator/lib64/qt/lib
+              emulator -avd test -no-window -skin 768x1280:xhdpi -noaudio -no-boot-anim
+        background: true
+    - run:
+        name: Wait emulator
+        command: |
+              circle-android wait-for-boot
+              adb shell input keyevent 82
+    - run:
+      name: Build
+      command: ./gradlew clean connectedAndroidTest --stacktrace
+    - store_artifacts:
+      path: app/build/reports
+      destination: reports
