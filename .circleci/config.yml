@@ -42,13 +42,15 @@ jobs:
         command: gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
     - run:
         name: Run instrumented test on Firebase Test Lab
-        command: gcloud firebase test android run --type instrumentation --app app/build/outputs/apk/debug/app-debug.apk --test app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk --device model=taimen,version=27,locale=en_US,orientation=portrait
+        command: gcloud firebase test android run --type instrumentation --app app/build/outputs/apk/debug/app-debug.apk --test app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk --device model=taimen,version=27,locale=en_US,orientation=portrait --results-bucket test-lab-as1u17p7xh7q0-jn9dqt98s4r9a
     - run:
         name: Create directory to store test results
-        command: mkdir firebase
+        command: |
+            mkdir firebase
+            pwd
     - run:
         name: Download instrumented test results from Firebase Test Lab
-        command: gsutil -m cp -r -U "`gsutil ls gs://test-lab-4qr7bhv2pt0zk-h9pxpvyf9hfcm | tail -1`*" /root/workspace/firebase/
+        command: gsutil -m cp -r -U "`gsutil ls gs://test-lab-as1u17p7xh7q0-jn9dqt98s4r9a | tail -1`*" /root/workspace/firebase/
     - store_artifacts:
         path: firebase/
         destination: /firebase/
