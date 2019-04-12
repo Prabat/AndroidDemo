@@ -56,6 +56,6 @@ jobs:
         destination: /firebase/
     - run:
         name: Copy test results
-        command: cp firebase/taimen-27-en_US-portrait/test_result_1.xml test_results/espresso/results.xml || true
+        command: cp firebase/taimen-27-en_US-portrait/test_result_1.xml test-results/espresso/results.xml || true
     - store_test_results:
         path: test-results
